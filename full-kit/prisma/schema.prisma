@@ -1,5 +1,5 @@
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -80,4 +80,132 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+// Enums for commission and payout tracking
+enum CommissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PAID
+}
+
+enum CommissionType {
+  REFERRAL
+  BONUS
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  CANCELLED
+  OVERDUE
+}
+
+enum ProgramStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum PayoutStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum ProgramEnrollmentStatus {
+  PENDING
+  ACTIVE
+  CANCELLED
+}
+
+model Customer {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  phone     String?
+  address   String?
+  invoices  Invoice[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Partner {
+  id          String   @id @default(uuid())
+  name        String
+  email       String   @unique
+  phone       String?
+  programs    ProgramEnrollment[]
+  commissions Commission[]
+  payouts     Payout[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Program {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  status      ProgramStatus @default(ACTIVE)
+  startDate   DateTime?
+  endDate     DateTime?
+  enrollments ProgramEnrollment[]
+  commissions Commission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProgramEnrollment {
+  id        String   @id @default(uuid())
+  program   Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  programId String
+  partner   Partner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  partnerId String
+  status    ProgramEnrollmentStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([programId, partnerId])
+}
+
+model Commission {
+  id        String   @id @default(uuid())
+  program   Program? @relation(fields: [programId], references: [id], onDelete: Cascade)
+  programId String?
+  partner   Partner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  partnerId String
+  amount    Decimal
+  type      CommissionType
+  status    CommissionStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Invoice {
+  id          String   @id @default(uuid())
+  invoiceNumber String @unique
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId String
+  total      Decimal
+  status     InvoiceStatus @default(PENDING)
+  dueDate    DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Payout {
+  id        String   @id @default(uuid())
+  partner   Partner  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  partnerId String
+  amount    Decimal
+  status    PayoutStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
