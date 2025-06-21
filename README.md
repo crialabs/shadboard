@@ -77,3 +77,15 @@ See Shadboard in action by visiting the [live demo](https://shadboard.vercel.app
 ## Get Started
 
 Get your hands on **Shadboard** today and start building scalable, user-friendly applications with ease!
+
+## Analytics and Integrations
+
+Shadboard now includes an optional analytics endpoint and a lightweight tracking script that can be embedded on external websites. Add the script below to any page to record page views and custom events:
+
+```html
+<script src="/analytics.js"></script>
+```
+
+Use `window.shadboardAnalytics.track({ type: 'event', name: 'signup' })` to send custom events. Events are sent to `/api/analytics` and can be extended to store metrics or trigger integrations such as Telegram or WhatsApp notifications.
+
+The new Prisma schema `full-kit/prisma/extended-schema.prisma` provides a comprehensive data model including commissions, payouts, integrations, and more for advanced leads management.
