@@ -142,6 +142,20 @@ export const navigationsData: NavigationType[] = [
         ],
       },
       {
+        title: "Leads",
+        iconName: "UserPlus",
+        items: [
+          {
+            title: "List",
+            href: "/leads",
+          },
+          {
+            title: "Create",
+            href: "/leads/create",
+          },
+        ],
+      },
+      {
         title: "Customers",
         iconName: "Users",
         items: [

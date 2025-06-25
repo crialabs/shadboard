@@ -81,3 +81,23 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+model Customer {
+  id        String  @id @default(uuid())
+  name      String
+  email     String?
+  phone     String?
+  leads     Lead[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Lead {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  status      String   @default("NEW")
+  customer    Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
